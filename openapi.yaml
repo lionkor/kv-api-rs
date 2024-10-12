@@ -1,0 +1,94 @@
+openapi: "3.0.0"
+info:
+  title: Key-Value Store API
+  version: 1.0.0
+  description: An API for a simple key-value store.
+servers:
+  - url: "http://localhost:8080"
+paths:
+  /{key}:
+    get:
+      summary: Get a value by key
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Value found
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      summary: Set a value by key
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: text
+          application/json:
+            schema:
+              type: object
+          application/xml:
+            schema:
+              type: string
+              format: xml
+          text/html:
+            schema:
+              type: string
+              format: html
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+          application/zip:
+            schema:
+              type: string
+              format: binary
+          '(any other non-generic media type)':
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Value set successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
