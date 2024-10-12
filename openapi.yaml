@@ -29,6 +29,12 @@ paths:
             text/plain:
               schema:
                 type: string
+        '406':
+          description: Not Acceptable (mismatched media type)
+          content:
+            text/plain:
+              schema:
+                type: string
     post:
       summary: Set a value by key
       parameters:
@@ -82,6 +88,12 @@ paths:
       responses:
         '200':
           description: Value set successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Bad Request (e.g. generic media type)
           content:
             text/plain:
               schema:
