@@ -1,6 +1,5 @@
-use async_compression::tokio::bufread::ZstdDecoder;
 use async_compression::tokio::write::ZstdEncoder;
-use std::{io::Cursor, ops::BitAnd};
+use std::ops::BitAnd;
 use tokio::io::{self, AsyncRead, AsyncReadExt, AsyncSeek, AsyncSeekExt, AsyncWriteExt};
 
 use super::result::{KVError, KVResult};
@@ -146,9 +145,11 @@ impl KVEntry {
 
 #[cfg(test)]
 mod tests {
+    use std::io::Cursor;
+
     use super::*;
-    use tokio::io::BufWriter;
     use tokio::io::BufReader;
+    use tokio::io::BufWriter;
 
     #[tokio::test]
     async fn test_write_and_read_entry() -> KVResult<()> {
