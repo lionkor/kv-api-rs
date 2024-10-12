@@ -16,13 +16,10 @@ fn accept_header_matches(header: &str, mime_type: &str) -> bool {
     if header.contains(mime_type) || header.contains("*/*") {
         return true;
     }
-    if mime_type.ends_with("/*") {
-        let base_type = mime_type.trim_end_matches("/*");
-        return header.starts_with(base_type) || header.starts_with(&format!("{}/", base_type));
-    }
     if header.ends_with("/*") {
         let base_type = header.trim_end_matches("/*");
-        return mime_type.starts_with(base_type) || mime_type.starts_with(&format!("{}/", base_type));
+        return mime_type.starts_with(base_type)
+            || mime_type.starts_with(&format!("{}/", base_type));
     }
     false
 }
@@ -36,12 +33,14 @@ mod tests {
         assert!(accept_header_matches("text/plain", "text/plain"));
         assert!(accept_header_matches("text/*", "text/plain"));
         assert!(accept_header_matches("*/*", "text/plain"));
-        assert!(accept_header_matches("application/json", "application/*"));
+        assert!(accept_header_matches(
+            "*/*",
+            "text/plain;charset=ISO-8859-4"
+        ));
         assert!(!accept_header_matches("application/json", "text/plain"));
         assert!(!accept_header_matches("text/html", "application/json"));
         assert!(!accept_header_matches("text/*", "application/json"));
         assert!(!accept_header_matches("text/html", "application/html"));
-        assert!(!accept_header_matches("text/html", "application/*"));
     }
 }
 
@@ -64,7 +63,7 @@ async fn get_value(
                 .content_type(value.mime.clone())
                 .body(value.value.clone())
         }
-        None => HttpResponse::NotFound().body("Not Found"),
+        None => HttpResponse::NotFound().finish(),
     }
 }
 
@@ -75,6 +74,9 @@ async fn set_value(
     value: web::Bytes,
 ) -> impl Responder {
     let mut store = data.store.lock().unwrap();
+    if req.content_type().contains("*") {
+        return HttpResponse::BadRequest().body("Invalid Content-Type: Must be non-generic");
+    }
     match store
         .set(
             &key,
@@ -88,7 +90,7 @@ async fn set_value(
             return HttpResponse::InternalServerError().body("Error setting value");
         }
     }
-    HttpResponse::Ok().body("OK")
+    HttpResponse::Ok().finish()
 }
 
 async fn start_server(store: kv::store::FileBackedKVStore) -> std::io::Result<()> {
